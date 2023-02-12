@@ -10,92 +10,36 @@ export const meta = {
 
 export default (props) => <ArticleLayout meta={meta} {...props} />
 
-When you’re building a website for a company as ambitious as Planetaria, you need to make an impression. I wanted people to visit our website and see animations that looked more realistic than reality itself.
 
-To make this possible, we needed to squeeze every drop of performance out of the browser possible. And so Animaginary was born.
+## 前言
+网络中数据传输最重要的就是保证数据的安全，VPN 就可以比较好的保证这一点。
 
-```js
-import { animate } from '@planetaria/animaginary'
+设想一个场景，你在远程办公，你的工作地点可以是任何位置，首先你需要远程连接到公司的网络，拉取一些公司文件到你的电脑上，那么这个过程中就涉及到数据在公网中传输。就可以使用 VPN。
 
-export function MyComponent({ open, children }) {
-  return (
-    <animate.div
-      in={open}
-      animateFrom="opacity-0 scale-95"
-      animateTo="opacity-100 scale-100"
-      duration={350}
-    >
-      {children}
-    </animate.div>
-  )
-}
-```
+## 1. 加密
+如果使用明文传输的话，在传输过程中消息包被拦截下来后，就可能被别人看到消息内容，此时我们就需要对消息进行加密。加密算法有对称加密和非对称加密。
 
-Animaginary is our new web animation library that redefines what you thought was possible on the web. Hand-written in optimized WASM, Animaginary can even animate the `height` property of an element at 60fps.
+举例 https 中双方在协商对称加密的密钥过程中，使用的时非对称加密算法，拿到对称加密的密钥后，再改为对称加密进行数据传输
+## 2. 完整
+数据在公网中传输时，即便黑客看不懂加密的密文，但黑客可以对密文进行篡改，所以我们还要确定数据的完整性，即通讯双方的信息是否能够准确传达给对方，而没有被其他人修改。
 
-## Sermone fata
+## 3. 认证
+确保了数据的加密性和完整性后，在公网中传输的安全问题就被解决了。
+但是黑客有可能会入侵正在通讯的那台计算机，来假装自己人进行通讯。
+所以就需要认证，来确保对方是否是自己人
+两种算法 PSK RSA
 
-Lorem markdownum, bracchia in redibam! Terque unda puppi nec, linguae posterior
-in utraque respicere candidus Mimasque formae; quae conantem cervice. Parcite
-variatus, redolentia adeunt. Tyrioque dies, naufraga sua adit partibus celanda
-torquere temptata, erit maneat et ramos, [iam](#) ait dominari
-potitus! Tibi litora matremque fumantia condi radicibus opusque.
+从 OSI 进行分析，当前主流 VPN 有两大框架可以选择， IPsec 和 SSL/TLS，比如 http 里的 s 就是 SSL/TLS
 
-Deus feram verumque, fecit, ira tamen, terras per alienae victum. Mutantur
-levitate quas ubi arcum ripas oculos abest. Adest [commissaque
-victae](#) in gemitus nectareis ire diva
-dotibus ora, et findi huic invenit; fatis? Fractaque dare superinposita
-nimiumque simulatoremque sanguine, at voce aestibus diu! Quid veterum hausit tu
-nil utinam paternos ima, commentaque.
+从OSI七层模型上来看，IPsec是在数据由上到下流到网络层时进行加密解密，而 SSL/TLS 在表示层就会进行（举例：http 就是应用层协议，所以用 https 后是在应用层加密）。
+所以 SSL VPN是基于应用层的VPN，而IPsec VPN是基于网络层的VPN。
 
-```c
-exbibyte_wins = gigahertz(3);
-grayscaleUtilityClient = control_uat;
-pcmciaHibernate = oop_virus_console(text_mountain);
-if (stateWaisFirewire >= -2) {
-    jfs = 647065 / ldapVrml(tutorialRestore, 85);
-    metal_runtime_parse = roomComputingResolution - toolbarUpload +
-            ipx_nvram_open;
-} else {
-    maximizeSidebar *= suffix_url(flatbed + 2, requirements_encoding_node +
-            only_qbe_media, minicomputer);
-}
-```
+## 两种类型的优缺点
 
-Aere repetiti cognataque natus. Habebat vela solutis saepe munus nondum adhuc
-oscula nomina pignora corpus deserat.
+  1. Psec VPN多用于“网—网”连接，SSL VPN用于“移动客户—网”连接。SSL VPN的移动用户使用标准的浏览器，无需安装客户端程序，即可通过SSL VPN隧道接入内部网络；而IPSec VPN的移动用户需要安装专门的IPSec客户端软件。
+  2. SSL VPN是基于应用层的VPN，而IPsec VPN是基于网络层的VPN。IPsec VPN对所有的IP应用均透明；而SSL VPN保护基于Web的应用更有优势，当然好的产品也支持TCP/UDP的C/S应用，例如文件共享、网络邻居、Ftp、Telnet、Oracle等。
+  3. SSL VPN用户不受上网方式限制，SSL VPN隧道可以穿透Firewall；而IPSec客户端需要支持“NAT穿透”功能才能穿透Firewall，而且需要Firewall打开UDP500端口。
+  4. SSL VPN只需要维护中心节点的网关设备，客户端免维护，降低了部署和支持费用。而IPSec VPN需要管理通讯的每个节点，网管专业性较强。
+  5. SSL VPN 更容易提供细粒度访问控制，可以对用户的权限、资源、服务、文件进行更加细致的控制，与第三方认证系统（如：radius、AD等）结合更加便捷。而IPSec VPN主要基于IP组对用户进行访问控制。
 
-## Lethaei Pindumve me quae dinumerat Pavor
-
-Idem se saxa fata pollentibus geminos; quos pedibus. Est urnis Herses omnes nec
-divite: et ille illa furit sim verbis Cyllenius.
-
-1. Captus inpleverunt collo
-2. Nec nam placebant
-3. Siquos vulgus
-4. Dictis carissime fugae
-5. A tacitos nulla viginti
-
-Ungues fistula annoso, ille addit linoque motatque uberior verso
-[rubuerunt](#) confine desuetaque. _Sanguine_ anteit
-emerguntque expugnacior est pennas iniqui ecce **haeret** genus: peiora imagine
-fossas Cephisos formosa! Refugitque amata [refelli](#)
-supplex. Summa brevis vetuere tenebas, hostes vetantis, suppressit, arreptum
-regna. Postquam conpescit iuvenis habet corpus, et erratica, perdere, tot mota
-ars talis.
-
-```c
-digital.webcam_dual_frequency = webmasterMms;
-if (5 + language_standalone_google) {
-    cc_inbox_layout *= file_character;
-    task += p;
-    lockUnicode += enterprise_monochrome(tokenFunctionPersonal, keyVirtual,
-            adf);
-}
-windows_binary_esports(87734, array(restoreRomTopology, adRaw(407314),
-        dongleBashThumbnail), interpreter);
-```
-
-Sit volat naturam; motu Cancri. Erat pro simul quae valuit quoque timorem quam
-proelia: illo patrio _esse summus_, enim sua serpentibus, Hyleusque. Est coniuge
-recuso; refert Coroniden ignotos manat, adfectu.
+IPs 相比 SSL 可以更底层，SSL协议本身做了很多内容，可以安全的送达应用层，对于普通开发者完全够用。而 IPs 只能安全到达 网络层，剩下的路需要自己设计，自由度更高，可控的粒度更细。
