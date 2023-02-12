@@ -1,96 +1,103 @@
 import { ArticleLayout } from '@/components/ArticleLayout'
 
 export const meta = {
-  author: 'Adam Wathan',
+  author: '三鱼',
   date: '2022-07-14',
-  title: 'Rewriting the cosmOS kernel in Rust',
+  title: '制作自定义棋盘组件',
   description:
     'When we released the first version of cosmOS last year, it was written in Go. Go is a wonderful programming language, but it’s been a while since I’ve seen an article on the front page of Hacker News about rewriting some important tool in Go and I see articles on there about rewriting things in Rust every single week.',
 }
 
 export default (props) => <ArticleLayout meta={meta} {...props} />
 
-When we released the first version of cosmOS last year, it was written in Go. Go is a wonderful programming language with a lot of benefits, but it’s been a while since I’ve seen an article on the front page of Hacker News about rewriting some important tool in Go and I see articles on there about rewriting things in Rust every single week.
+之前在学 React 的时候，跟着 [官方攻略](https://zh-hans.reactjs.org/tutorial/tutorial.html#what-are-we-building) 制作了一个井字棋教程，实现了一个简单的井字棋功能，以及一个时间回溯能力。
 
-```rust
-use ferris_says::say;
-use std::io::{stdout, BufWriter};
-
-fn main() {
-    let stdout = stdout();
-    let message = String::from("Hello fellow hackers");
-    let width = message.chars().count();
-
-    let mut writer = BufWriter::new(stdout.lock());
-    say(message.as_bytes(), width, &mut writer).unwrap();
+```js
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],[3, 4, 5],[6, 7, 8],
+    [0, 3, 6],[1, 4, 7],[2, 5, 8],
+    [0, 4, 8],[2, 4, 6]
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && 
+    squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
 }
 ```
 
-I derive a large amount of my self-worth from whether or not Hacker News is impressed with the work I'm doing, so when I realized this, I cancelled all of our existing projects and started migrating everything to Rust immediately.
+上面的代码是井字棋的获胜逻辑判断，由于井字棋体量小，获胜判断直接进行了枚举。有了上面 Demo 的基础，于是有了以下的想法。
 
-## Sermone fata
+## 自定义棋盘思考
 
-Lorem markdownum, bracchia in redibam! Terque unda puppi nec, linguae posterior
-in utraque respicere candidus Mimasque formae; quae conantem cervice. Parcite
-variatus, redolentia adeunt. Tyrioque dies, naufraga sua adit partibus celanda
-torquere temptata, erit maneat et ramos, [iam](#) ait dominari
-potitus! Tibi litora matremque fumantia condi radicibus opusque.
+我从最外层组件的传入参数开始思考，需要传入的参数有棋盘的长宽规格，获胜条件(几子相连可以获胜？)。
+还想兼容一下围棋的功能--提子，还传入了一个 boolean。
 
-Deus feram verumque, fecit, ira tamen, terras per alienae victum. Mutantur
-levitate quas ubi arcum ripas oculos abest. Adest [commissaque
-victae](#) in gemitus nectareis ire diva
-dotibus ora, et findi huic invenit; fatis? Fractaque dare superinposita
-nimiumque simulatoremque sanguine, at voce aestibus diu! Quid veterum hausit tu
-nil utinam paternos ima, commentaque.
+我把棋盘的逻辑和实体结构进行了区分，`<Square/>`中处理单元格中的显示逻辑，
+`<Board/>` 中用来接收棋盘规格，渲染棋盘，`<Game/>` 则用来接收游戏获胜条件，在每次落子时进行获胜逻辑的判断，并做全局游戏的记录。
 
 ```c
-exbibyte_wins = gigahertz(3);
-grayscaleUtilityClient = control_uat;
-pcmciaHibernate = oop_virus_console(text_mountain);
-if (stateWaisFirewire >= -2) {
-    jfs = 647065 / ldapVrml(tutorialRestore, 85);
-    metal_runtime_parse = roomComputingResolution - toolbarUpload +
-            ipx_nvram_open;
-} else {
-    maximizeSidebar *= suffix_url(flatbed + 2, requirements_encoding_node +
-            only_qbe_media, minicomputer);
+function Square(props) {
+  return (
+      <button className="square" onClick={props.onClick}>
+        {props.value}
+      </button>
+  );
 }
+//board 重点代码
+<div>
+    {board.map(((row,index) => {
+        const div = <div key={index} className="board-row">
+            {
+                row.map((value,index)=>{
+                    return this.renderSquare(value,index)
+                })
+            }
+        </div>
+        return div;
+    }))}
+</div>
 ```
 
-Aere repetiti cognataque natus. Habebat vela solutis saepe munus nondum adhuc
-oscula nomina pignora corpus deserat.
+上述完成了基础的棋盘显示，并可以自定义接收参数，由 `renderSquare()` 完成棋盘的渲染。
 
-## Lethaei Pindumve me quae dinumerat Pavor
+## Game 逻辑处理
 
-Idem se saxa fata pollentibus geminos; quos pedibus. Est urnis Herses omnes nec
-divite: et ille illa furit sim verbis Cyllenius.
+Game 层来处理游戏获胜逻辑，我将获胜判断拆分成四个
 
-1. Captus inpleverunt collo
-2. Nec nam placebant
-3. Siquos vulgus
-4. Dictis carissime fugae
-5. A tacitos nulla viginti
+1. 横向判断
+2. 竖向判断
+3. 左斜向判断
+4. 右斜向判断
 
-Ungues fistula annoso, ille addit linoque motatque uberior verso
-[rubuerunt](#) confine desuetaque. _Sanguine_ anteit
-emerguntque expugnacior est pennas iniqui ecce **haeret** genus: peiora imagine
-fossas Cephisos formosa! Refugitque amata [refelli](#)
-supplex. Summa brevis vetuere tenebas, hostes vetantis, suppressit, arreptum
-regna. Postquam conpescit iuvenis habet corpus, et erratica, perdere, tot mota
-ars talis.
+依次进行遍历四个方法。我将四个判断的公共逻辑抽出，写在一个函数中，虽然增加了内部耦合，但也更加精简，贴合组件化的思想。
+并通过 index 传入进行四种不同判断。下面是其中一个函数，[源码点这里](https://github.com/81163954/five-in-a-row)
+```js
+if(direction===0){
+            while(p.y < this.state.boardY){
+                p.y++;
+                let index = this.calculateIndex(p);
+                if(squares[index] && squares[index]===next){
+                    count++;
+                }else break;
+            }
+            p = JSON.parse(JSON.stringify(position))
+            while(p.y > 0){
+                p.y--;
+                let index = this.calculateIndex(p);
+                if(squares[index] && squares[index]===next){
+                    count++;
+                }else break;
+            }
+            if (count>=this.state.rule){
 
-```c
-digital.webcam_dual_frequency = webmasterMms;
-if (5 + language_standalone_google) {
-    cc_inbox_layout *= file_character;
-    task += p;
-    lockUnicode += enterprise_monochrome(tokenFunctionPersonal, keyVirtual,
-            adf);
-}
-windows_binary_esports(87734, array(restoreRomTopology, adRaw(407314),
-        dongleBashThumbnail), interpreter);
+                return true;
+            }
+        }
 ```
 
-Sit volat naturam; motu Cancri. Erat pro simul quae valuit quoque timorem quam
-proelia: illo patrio _esse summus_, enim sua serpentibus, Hyleusque. Est coniuge
-recuso; refert Coroniden ignotos manat, adfectu.
+最后将回溯代码进行了流程完善，并且加入了提子功能。
