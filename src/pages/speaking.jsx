@@ -76,7 +76,7 @@ export default function Speaking() {
               title="开源世界旅行手册"
               description="技术旅行文档，包括一些基本教程，编程的实用方案以及开源运动史，你可以把这本书当成一个旅行。"
               event="Github 2009"
-              cta="Listen to podcast"
+              cta="阅读"
             />
           </SpeakingSection>
         </div>
