@@ -28,22 +28,22 @@ const projects = [
     name: 'CSDNN',
     description:
       '仿照 CSDN 开发的博客园系统',
-    link: { href: 'https://gitee.com/leguu/blog_front', label: 'gitee.com' },
+    link: { href: 'https://gitee.com/xiong_zhengyong/blog-2', label: 'gitee.com' },
     logo: logoHelioStream,
   },
-  // {
-  //   name: 'cosmOS',
-  //   description:
-  //     'The operating system that powers our Planetaria space shuttles.',
-  //   link: { href: '#', label: 'github.com' },
-  //   logo: logoCosmos,
-  // },
+  {
+    name: '便利店后端管理系统',
+    description:
+      '一个管理系统，包括订单，采购，商品管理，SKU，SPU管理等模块',
+    link: { href: 'https://github.com/81163954/msb-mall', label: 'github.com' },
+    logo: logoOpenShuttle,
+  },
   // {
   //   name: 'OpenShuttle',
   //   description:
   //     'The schematics for the first rocket I designed that successfully made it to orbit.',
   //   link: { href: '#', label: 'github.com' },
-  //   logo: logoOpenShuttle,
+  //   logo: logoCosmos,
   // },
 ]
 

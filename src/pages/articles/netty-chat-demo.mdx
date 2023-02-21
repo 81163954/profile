@@ -1,0 +1,208 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const meta = {
+  author: '三鱼',
+  date: '2022-07-16',
+  title: '使用 netty 实现 IM',
+  description:
+    '我们使用 netty 实现了一个高性能的简单聊天框架'
+}
+
+export default (props) => <ArticleLayout meta={meta} {...props} />
+
+netty 是一个高性能的网络框架
+- NIO 多路复用
+- 基于原生 JDK
+- 能够实现多种复杂协议
+- 规避了原生 JDK 空轮询的 bug
+
+接下来的是一个简单实现的IM后端实现
+## 服务器端
+首先我们从服务器端处理器开始实现
+```java
+public class SimpleChatServerHandler extends SimpleChannelInboundHandler<String> {
+
+	public static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+		Channel incoming = ctx.channel();
+
+		// 向多个 channel 广播加入的消息
+		channels.writeAndFlush("[SERVER] - " + incoming.remoteAddress() + " 加入\n");
+
+		channels.add(ctx.channel());
+    }
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {  // (3)
+		Channel incoming = ctx.channel();
+
+		// 向多个 channel 广播离开的消息
+		channels.writeAndFlush("[SERVER] - " + incoming.remoteAddress() + " 离开\n");
+
+		// 我们不需要显式的从 ChannelGroup 中进行移除操作，比如接下来这种操作"channels.remove(ctx.channel());"
+    }
+    @Override
+	protected void channelRead0(ChannelHandlerContext ctx, String s) throws Exception { // (4)
+		Channel incoming = ctx.channel();
+		for (Channel channel : channels) {
+            if (channel != incoming){
+                channel.writeAndFlush("[" + incoming.remoteAddress() + "]" + s + "\n");
+            } else {
+            	channel.writeAndFlush("[you]" + s + "\n");
+            }
+        }
+	}
+	@Override
+	public void channelActive(ChannelHandlerContext ctx) throws Exception { // (5)
+        Channel incoming = ctx.channel();
+		System.out.println("SimpleChatClient:"+incoming.remoteAddress()+"在线");
+	}
+	@Override
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception { // (6)
+        Channel incoming = ctx.channel();
+		System.out.println("SimpleChatClient:"+incoming.remoteAddress()+"掉线");
+	}
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { // (7)
+    	Channel incoming = ctx.channel();
+		System.out.println("SimpleChatClient:"+incoming.remoteAddress()+"异常");
+        // 当出现异常就关闭连接
+        cause.printStackTrace();
+        ctx.close();
+    }
+}
+```
+
+上面我们写了一个handler，自定义属性 channels 中维护的是服务器的 channel，服务器拥有在线和离线的状态，如果在线就可在 channels 中找到
+当有一个写请求进入时，channelRead0 就会触发，将不存在 channels 中的连接视为用户。
+
+## 初始化器
+初始化器，用来将多个处理器，编解码器，添加到一个 ChannelPipeline 上
+
+```java
+public class SimpleChatServerInitializer extends
+		ChannelInitializer<SocketChannel> {
+
+	@Override
+    public void initChannel(SocketChannel ch) throws Exception {
+		 ChannelPipeline pipeline = ch.pipeline();
+
+        pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
+        pipeline.addLast("decoder", new StringDecoder());
+        pipeline.addLast("encoder", new StringEncoder());
+        pipeline.addLast("handler", new SimpleChatServerHandler());
+
+		System.out.println("SimpleChatClient:"+ch.remoteAddress() +"连接上");
+    }
+}
+```
+
+## 启动服务器端
+
+编写一个 main 方法来为服务器绑定一个端口并启动它
+```java
+public class SimpleChatServer {
+
+    private int port;
+
+    public SimpleChatServer(int port) {
+        this.port = port;
+    }
+
+    public void run() throws Exception {
+
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        try {
+            ServerBootstrap b = new ServerBootstrap();
+            b.group(bossGroup, workerGroup)
+             .channel(NioServerSocketChannel.class)
+             .childHandler(new SimpleChatServerInitializer())
+             .option(ChannelOption.SO_BACKLOG, 128)
+             .childOption(ChannelOption.SO_KEEPALIVE, true);
+
+    		System.out.println("SimpleChatServer 启动了");
+
+            // 绑定端口，开始接收进来的连接
+            ChannelFuture f = b.bind(port).sync(); // (7)
+
+            // 等待服务器  socket 关闭 。
+            // 在这个例子中，这不会发生，但你可以优雅地关闭你的服务器。
+            f.channel().closeFuture().sync();
+
+        } finally {
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
+
+    		System.out.println("SimpleChatServer 关闭了");
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        int port;
+        if (args.length > 0) {
+            port = Integer.parseInt(args[0]);
+        } else {
+            port = 8080;
+        }
+        new SimpleChatServer(port).run();
+
+    }
+}
+```
+NioEventLoopGroup 是一个事件循环器，boss 用来接受进来的连接，并将连接注册到 worker 上。
+NioEventLoopGroup 就是 EventLoopGroup 的一个实现，在构造函数中你可以做一些配置。
+ServerBootstrap 是用来构造 Server 的，使用了设计模式中的 builder。
+我们还可以使用 option 来配置 channel
+
+## 客户端
+
+客户端接受 String 类型的消息，并将消息打印了出来。另外补充一点，由于 SimpleChannelInboundHandler
+指定了 String，所以 channelRead0 可以接受。其次，我们在初始化器中指定了 StringDecoder 和 StringEncoder 用来编解码。
+
+```java
+public class SimpleChatClientHandler extends  SimpleChannelInboundHandler<String> {
+	@Override
+	protected void channelRead0(ChannelHandlerContext ctx, String s) throws Exception {
+		System.out.println(s);
+	}
+}
+```
+最后写一个 main 函数用来启动客户端
+
+```java
+public class SimpleChatClient {
+	public static void main(String[] args) throws Exception{
+	        new SimpleChatClient("localhost", 8080).run();
+	    }
+
+	    private final String host;
+	    private final int port;
+
+	    public SimpleChatClient(String host, int port){
+	        this.host = host;
+	        this.port = port;
+	    }
+
+	    public void run() throws Exception{
+	        EventLoopGroup group = new NioEventLoopGroup();
+	        try {
+	            Bootstrap bootstrap  = new Bootstrap()
+	                    .group(group)
+	                    .channel(NioSocketChannel.class)
+	                    .handler(new SimpleChatClientInitializer());
+	            Channel channel = bootstrap.connect(host, port).sync().channel();
+	            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+	            while(true){
+	                channel.writeAndFlush(in.readLine() + "\r\n");
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        } finally {
+	            group.shutdownGracefully();
+	        }
+        }
+}
+
+
+```
