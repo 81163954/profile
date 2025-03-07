@@ -9,32 +9,46 @@ import logoHelioStream from '@/images/logos/helio-stream.svg'
 import logoOpenShuttle from '@/images/logos/open-shuttle.svg'
 import logoPlanetaria from '@/images/logos/planetaria.svg'
 
+const onlineProjects = [
+  {
+    name: '辉石简历',
+    description: '在线的简历制作网站，使用 Next.js 开发',
+    link: { href: 'https://shiningcv.com', label: '产品官网' },
+    logo: logoOpenShuttle,
+  },
+]
+
 const projects = [
   {
     name: 'FlappyAza',
-    description:
-      'Aza 同人小游戏，使用 Unity 开发。',
-    link: { href: 'https://github.com/81163954/FlappyAza', label: 'github.com' },
+    description: 'Aza 同人小游戏，使用 Unity 开发。',
+    link: {
+      href: 'https://github.com/81163954/FlappyAza',
+      label: 'github.com',
+    },
     logo: logoPlanetaria,
   },
   {
     name: 'Five-in-a-row',
-    description:
-      '五子棋，围棋棋盘组件，使用 React 组件化。',  
-    link: { href: 'https://github.com/81163954/five-in-a-row', label: 'github.com' },
+    description: '五子棋，围棋棋盘组件，使用 React 组件化。',
+    link: {
+      href: 'https://github.com/81163954/five-in-a-row',
+      label: 'github.com',
+    },
     logo: logoAnimaginary,
   },
   {
     name: 'CSDNN',
-    description:
-      '仿照 CSDN 开发的博客园系统',
-    link: { href: 'https://gitee.com/xiong_zhengyong/blog-2', label: 'gitee.com' },
+    description: '仿照 CSDN 开发的博客园系统',
+    link: {
+      href: 'https://gitee.com/xiong_zhengyong/blog-2',
+      label: 'gitee.com',
+    },
     logo: logoHelioStream,
   },
   {
     name: '便利店后端管理系统',
-    description:
-      '一个管理系统，包括订单，采购，商品管理，SKU，SPU管理等模块',
+    description: '一个管理系统，包括订单，采购，商品管理，SKU，SPU管理等模块',
     link: { href: 'https://github.com/81163954/msb-mall', label: 'github.com' },
     logo: logoOpenShuttle,
   },
@@ -63,15 +77,44 @@ export default function Projects() {
     <>
       <Head>
         <title>项目 - 三鱼</title>
-        <meta
-          name="description"
-          content="试图在世界中留下我的痕迹。"
-        />
+        <meta name="description" content="试图在世界中留下我的痕迹。" />
       </Head>
       <SimpleLayout
         title="试图在世界中留下我的痕迹。"
-        intro="做过的 Demo 和个人项目都会收录在这里。"
+        intro="开发的产品和做过的项目都会收录在这里。"
       >
+        <h1 className="pb-16 text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl">
+          个人产品
+        </h1>
+        <ul
+          role="list"
+          className="grid grid-cols-1 gap-x-12 gap-y-16 pb-20 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {onlineProjects.map((project) => (
+            <Card as="li" key={project.name}>
+              <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 dark:border dark:border-zinc-700/50 dark:bg-zinc-800 dark:ring-0">
+                <Image
+                  src={project.logo}
+                  alt=""
+                  className="h-8 w-8"
+                  unoptimized
+                />
+              </div>
+              <h2 className="mt-6 text-base font-semibold text-zinc-800 dark:text-zinc-100">
+                <Card.Link href={project.link.href}>{project.name}</Card.Link>
+              </h2>
+              <Card.Description>{project.description}</Card.Description>
+              <p className="relative z-10 mt-6 flex text-sm font-medium text-zinc-400 transition group-hover:text-teal-500 dark:text-zinc-200">
+                <LinkIcon className="h-6 w-6 flex-none" />
+                <span className="ml-2">{project.link.label}</span>
+              </p>
+            </Card>
+          ))}
+        </ul>
+
+        <h1 className="pb-16 text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl">
+          项目和Demo
+        </h1>
         <ul
           role="list"
           className="grid grid-cols-1 gap-x-12 gap-y-16 sm:grid-cols-2 lg:grid-cols-3"

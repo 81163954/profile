@@ -64,9 +64,7 @@ export default function About() {
               软件工程师、游戏开发爱好者、掌机玩家。
             </h1>
             <div className="mt-6 space-y-7 text-base text-zinc-600 dark:text-zinc-400">
-              <p>
-                我很喜欢去探索一些新奇的东西，并使用它们去构建自己的想法。
-              </p>
+              <p>我很喜欢去探索一些新奇的东西，并使用它们去构建自己的想法。</p>
               <p>
                 小时候唯一比积木更喜欢的东西就是电脑了。在我大概8岁的时候，就接触到了自
                 己人生中的第一台电脑，面对网络上很多新奇的东西，总想去了解的更多。没日
@@ -76,26 +74,26 @@ export default function About() {
               <p>
                 高中时期，我接触到了掌机游戏。游戏之余，我在网络上看到了一些设计和
                 制作游戏的视频，于是开始学习制作游戏，这是我第一次接触编程，敲击键盘，
-                构建出自己想象的游戏世界。大学时期使用 Unity 开发了一些小游戏 Demo。
+                构建出自己想象的游戏世界。大学时期使用 Unity 开发了一些小游戏
+                Demo。
               </p>
               <p>
-                 我享受使用代码去表达自己的想法，目标是用自己的方式去为互联网
-                 做出一些贡献。
+                我享受使用代码去表达自己的想法，目标是用自己的方式去为互联网
+                做出一些贡献。
               </p>
             </div>
           </div>
           <div className="lg:pl-20">
             <ul role="list">
-              <SocialLink href="https://github.com/81163954/" icon={GitHubIcon} >
+              <SocialLink href="https://github.com/81163954/" icon={GitHubIcon}>
                 GitHub
               </SocialLink>
-              <SocialLink href="#" icon={TwitterIcon} className="mt-4">
-                Twitter
-              </SocialLink>
-              <SocialLink href="#" icon={InstagramIcon} className="mt-4">
-                Instagram
-              </SocialLink>
-              <SocialLink href="#" icon={LinkedInIcon} className="mt-4">
+
+              <SocialLink
+                href="https://www.linkedin.com/in/zhouyuinno/"
+                icon={LinkedInIcon}
+                className="mt-4"
+              >
                 LinkedIn
               </SocialLink>
               <SocialLink

@@ -212,7 +212,7 @@ function Resume() {
       {/*  ))}*/}
       {/*</ol>*/}
       <Button href="#" variant="secondary" className="group mt-6 w-full">
-        Download CV
+        下载简历
         <ArrowDownIcon className="h-4 w-4 stroke-zinc-400 transition group-active:stroke-zinc-600 dark:group-hover:stroke-zinc-50 dark:group-active:stroke-zinc-50" />
       </Button>
     </div>
@@ -250,9 +250,7 @@ export default function Home({ articles }) {
   return (
     <>
       <Head>
-        <title>
-          我是三鱼，一个软件工程师和业余游戏开发爱好者。
-        </title>
+        <title>我是三鱼，一个软件工程师和业余游戏开发爱好者。</title>
         <meta
           name="description"
           content="I’m Spencer, a software designer and entrepreneur based in New York City. I’m the founder and CEO of Planetaria, where we develop technologies that empower regular people to explore space on their own terms."
@@ -267,7 +265,7 @@ export default function Home({ articles }) {
             我是三鱼，一个软件工程师和业余游戏开发爱好者。平时喜欢自己折腾些感兴趣的技术，并用自己的想法，构建出一些新奇的有用的东西。
           </p>
           <div className="mt-6 flex gap-6">
-            <SocialLink
+            {/* <SocialLink
               href="https://twitter.com"
               aria-label="Follow on Twitter"
               icon={TwitterIcon}
@@ -276,14 +274,14 @@ export default function Home({ articles }) {
               href="https://instagram.com"
               aria-label="Follow on Instagram"
               icon={InstagramIcon}
-            />
+            /> */}
             <SocialLink
-              href="https://github.com"
+              href="https://github.com/81163954/"
               aria-label="Follow on GitHub"
               icon={GitHubIcon}
             />
             <SocialLink
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/in/zhouyuinno/"
               aria-label="Follow on LinkedIn"
               icon={LinkedInIcon}
             />
